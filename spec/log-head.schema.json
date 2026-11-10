@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:trackforge:rating:log-head:1",
+  "title": "TrackForge rating log head, format 1",
+  "description": "log/heads/<seq, six digits>.json: the hash of log entry seq, timestamped with OpenTimestamps beside it (<file>.ots). Stamping the head commits to every entry before it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "seq", "entry_sha256"],
+  "properties": {
+    "format": {"const": "trackforge-rating-log-head/1"},
+    "seq": {"type": "integer", "minimum": 1},
+    "entry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:trackforge:rating:signed-statement:1",
+  "title": "TrackForge signed rating statement, format 1",
+  "description": "A rating statement with James's Ed25519 signature over the statement's canonical JSON bytes. The whole file is itself canonical JSON and is what the OpenTimestamps proof stamps.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "statement", "signature"],
+  "properties": {
+    "format": {"const": "trackforge-signed-rating-statement/1"},
+    "statement": {"$ref": "urn:trackforge:rating:statement:1"},
+    "signature": {
+      "description": "64-byte Ed25519 signature, standard padded base64 (88 characters).",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9+/]{86}==$"
+    }
+  }
+}

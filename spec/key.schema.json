@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:trackforge:rating:signing-key:1",
+  "title": "TrackForge signing key, format 1",
+  "description": "keys/<fingerprint>.json: one published Ed25519 public key. Never edited after publication; its end of service comes from keys/rotations/. See keys.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "algorithm", "public_key", "fingerprint", "holder", "valid_from"],
+  "properties": {
+    "format": {"const": "trackforge-signing-key/1"},
+    "algorithm": {"const": "ed25519"},
+    "public_key": {
+      "description": "The raw 32-byte public key, standard padded base64 (44 characters).",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9+/]{43}=$"
+    },
+    "fingerprint": {
+      "description": "SHA-256 of the raw 32-byte public key, lowercase hex.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "holder": {"type": "string", "minLength": 1, "pattern": "^[\\x20-\\x7e]+$"},
+    "valid_from": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}
+  }
+}

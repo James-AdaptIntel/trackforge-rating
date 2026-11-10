@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:trackforge:rating:log-entry:1",
+  "title": "TrackForge rating log entry, format 1",
+  "description": "One line of log/entries.jsonl, in canonical JSON. Hashes and a date only; no client data. See log.md.",
+  "type": "object",
+  "required": ["format", "seq", "date", "kind", "statement_sha256", "prev_entry_sha256"],
+  "properties": {
+    "format": {"const": "trackforge-rating-log/1"},
+    "seq": {"type": "integer", "minimum": 1},
+    "date": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+    "kind": {"enum": ["issue", "replace", "withdraw"]},
+    "statement_sha256": {"$ref": "#/$defs/sha256"},
+    "replaces_statement_sha256": {"$ref": "#/$defs/sha256"},
+    "prev_entry_sha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]}
+  },
+  "if": {"properties": {"kind": {"const": "replace"}}},
+  "then": {
+    "required": ["replaces_statement_sha256"],
+    "properties": {
+      "format": true, "seq": true, "date": true, "kind": true, "statement_sha256": true,
+      "replaces_statement_sha256": true, "prev_entry_sha256": true
+    },
+    "additionalProperties": false
+  },
+  "else": {
+    "properties": {
+      "format": true, "seq": true, "date": true, "kind": true, "statement_sha256": true,
+      "prev_entry_sha256": true
+    },
+    "additionalProperties": false
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}
