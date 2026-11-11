@@ -19,13 +19,12 @@ python3 -c "import hashlib, json, sys; print(hashlib.sha256(json.dumps(json.load
 
 It prints
 `59f99d999410e961cd69a00918a2541e8f57c027ba6238e0660bb42ed8f4bf39`, the hash named in
-the method statement. Its Bitcoin timestamp through OpenTimestamps is pending; the
-method statement names the block once a block includes it.
+the method statement and timestamped on Bitcoin through OpenTimestamps, in block 975,482.
 
 ## Earlier versions
 
 `v2.7.json` (published 11 November 2026) stays here in full, byte for byte; its hash is
-`6df38bb202caf34463fbfd11ffe82156f8a55375ae1b78f3844b64a19c1420cf`. Its Bitcoin timestamp is pending, as for v2.8. Check it the same way as above,
+`6df38bb202caf34463fbfd11ffe82156f8a55375ae1b78f3844b64a19c1420cf`, timestamped on Bitcoin in block 975,469. Check it the same way as above,
 with `v2.7.json` in place of `v2.8.json`.
 
 `v2.6.json` (published 6 November 2026) stays here in full, byte for byte; its hash is

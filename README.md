@@ -55,7 +55,7 @@ The same text is published at
 Public: the method statement, the rule book, the public keys, the log and the checker.
 From v2.6 the rule book is published in full, byte for byte as it is used, in
 [`rule-book/`](rule-book/), v2.8 in force and v2.7 and v2.6 beside it; a version's hash is
-timestamped on Bitcoin before the first rating under it (the timestamps of v2.7 and v2.8 are pending),
+timestamped on Bitcoin before the first rating under it,
 and the rule book's README says how to check the file against that hash. The earlier
 versions, v2.4 and v2.5, are published by hash only.
 
