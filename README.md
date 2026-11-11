@@ -19,7 +19,7 @@
 <div align="center">
 <table>
   <tr><th>Rule book in force</th><th>Signing key</th></tr>
-  <tr><td><a href="rule-book/">v2.6</a></td><td><a href="keys/"><code>c38f1426…</code></a>, in service since 4 November 2026</td></tr>
+  <tr><td><a href="rule-book/">v2.7</a></td><td><a href="keys/"><code>c38f1426…</code></a>, in service since 4 November 2026</td></tr>
 </table>
 </div>
 
@@ -35,7 +35,7 @@ check a rating document is genuine, unaltered and still current.
 | Path | What |
 |---|---|
 | [`METHOD.md`](METHOD.md) | the method statement in prose |
-| [`rule-book/`](rule-book/) | the rule book in force, byte for byte, from v2.6 |
+| [`rule-book/`](rule-book/) | the rule book in force (v2.7), byte for byte, with v2.6 beside it |
 | [`keys/`](keys/) | TrackForge's Ed25519 public signing key(s) and any rotation records |
 | [`log/`](log/) | the hash-only log of issues, replacements and withdrawals, and its timestamped heads |
 | [`spec/`](spec/) | the formats: [statement](spec/statement.md), [log](spec/log.md), [keys](spec/keys.md), with JSON Schemas |
@@ -54,9 +54,10 @@ The same text is published at
 
 Public: the method statement, the rule book, the public keys, the log and the checker.
 From v2.6 the rule book is published in full, byte for byte as it is used, in
-[`rule-book/`](rule-book/); its hash is timestamped on Bitcoin before the first rating
-under it, and the rule book's README says how to check the file against that hash. The
-earlier versions, v2.4 and v2.5, are published by hash only.
+[`rule-book/`](rule-book/), v2.7 in force and v2.6 beside it; a version's hash is
+timestamped on Bitcoin before the first rating under it (v2.7's timestamp is pending),
+and the rule book's README says how to check the file against that hash. The earlier
+versions, v2.4 and v2.5, are published by hash only.
 
 Not public: the scoring code, the reference model and the readers that obtain the
 evidence. A relying party can have a rating recomputed under a separate agreement. A

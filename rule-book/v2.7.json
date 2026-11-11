@@ -1,0 +1,639 @@
+{
+  "methodology_version": "v2.7",
+  "status": "published",
+  "rating_scale": "TRACKFORGE_AAA_D",
+  "title": "TrackForge Catalogue Survey and Rating, methodology v2.7",
+  "decided": "2026-11-11",
+  "frame": "A work is a property; the catalogue is a portfolio. The survey is per property, the portfolio rating is a weighted roll-up. Leaks lose money now, risks could lose money later, opportunities are income not yet earned; only leaks and risks move the grade.",
+  "tiers": {
+    "0": {
+      "name": "catalogue check",
+      "letter_issued": false,
+      "inputs": "public registries and identity data only",
+      "coverage_minimums_apply": false
+    },
+    "1": {
+      "name": "catalogue rating",
+      "letter_issued": true,
+      "inputs": "tier 0 plus the owner's attestation, in-route society exports, statements where supplied, agreements where supplied, registration history",
+      "coverage_minimums_apply": true,
+      "requires": ["attestation", "in_route_exports"]
+    },
+    "2": {
+      "name": "asset integrity assessment",
+      "letter_issued": true,
+      "inputs": "tier 1 plus the cash bridge, population reconciliation, exceptions and independence disclosures",
+      "coverage_minimums_apply": true,
+      "requires": ["attestation", "in_route_exports", "statements", "independence_disclosure"]
+    }
+  },
+  "rights_positions": {
+    "composition": ["performing", "mechanical_digital", "mechanical_physical", "sync"],
+    "sound_recording": ["neighbouring", "master_distribution"],
+    "rule": "One survey per position class, never a mixed denominator. A position the owner does not hold is not a defect; the work has no survey for that class."
+  },
+  "routes": {
+    "in_scope": [
+      {"id": "prs", "name": "PRS for Music", "rights": ["performing"], "includes": "overseas performance income reaching a member through reciprocal agreements"},
+      {"id": "mcps", "name": "MCPS", "rights": ["mechanical_digital", "mechanical_physical"]},
+      {"id": "ice", "name": "ICE", "rights": ["performing", "mechanical_digital"], "role": "registration hub for PRS/MCPS"},
+      {"id": "mlc", "name": "The MLC", "rights": ["mechanical_digital"], "territory": "US"},
+      {"id": "ppl", "name": "PPL", "rights": ["neighbouring"], "includes": "PPL reciprocals"},
+      {"id": "soundexchange", "name": "SoundExchange", "rights": ["neighbouring"], "territory": "US"},
+      {"id": "ascap", "name": "ASCAP", "rights": ["performing"], "territory": "US", "requires": "owner_export", "requires_rule": "In scope only for an owner that is a direct member and supplies its own export of its account: the export is the route's one reading, so without it the route is out of scope and a declared direct member's performing income is not graded, which the rating says. A member whose US performance income reaches it through PRS for Music is graded on that route, not this one. One of ASCAP and BMI in a survey: the owner's own affiliate."},
+      {"id": "bmi", "name": "BMI", "rights": ["performing"], "territory": "US", "requires": "owner_export", "requires_rule": "As ASCAP: in scope only for a direct member that supplies its own export, one of the two in a survey."}
+    ],
+    "out_of_scope_examples": [
+      "direct memberships of societies other than ASCAP and BMI",
+      "income collected abroad by a sub-publisher",
+      "mechanicals outside The MLC"
+    ],
+    "presence_only_sources": ["cisnet", "ascap_bulk", "usco"],
+    "channel_by_right": {"performing": "performance", "mechanical_digital": "digital_mechanical", "mechanical_physical": "physical_mechanical", "neighbouring": "neighbouring", "sync": "sync"},
+    "primary_by_rights_type": {"composition": ["mlc"], "sound_recording": ["ppl", "soundexchange"]},
+    "materiality_threshold": 0.10,
+    "income_split": [
+      {
+        "channel": "digital_mechanical",
+        "us_routes": ["mlc"],
+        "rest_routes": ["mcps"],
+        "default_us_share": 0.4,
+        "default_us_share_basis": "IFPI Global Music Report 2025: USA and Canada held 40.3% of global recorded revenue in 2024. It overstates the US alone on purpose: a catalogue that declares nothing takes the upper plausible figure, so leaving the US share undeclared never shrinks The MLC below what a declaration would.",
+        "share_field": "us_share",
+        "applied_field": "income_split_applied",
+        "rule": "Digital mechanical income divides by territory: a route in us_routes takes the catalogue's US share of the channel and a route in rest_routes takes the remainder, so the route shares of a composition survey sum to 1. The split applies only with a route in scope on each side: with one side alone, that route takes the whole channel whatever US share is declared or defaulted, and the tuple says so in income_split_applied. A hub is on neither side. The US share is the attestation's us_share, else default_us_share; the tuple discloses it and its source. Because a low declared share can take The MLC under the materiality threshold, the declaration and its source travel with the letter."
+      },
+      {
+        "channel": "neighbouring",
+        "us_routes": ["soundexchange"],
+        "rest_routes": ["ppl"],
+        "default_us_share": 0.4,
+        "default_us_share_basis": "SoundExchange distributed $1.05bn gross in 2024 against about $2.87bn of global performance rights (IFPI Global Music Report 2025, 9.7% of $29.6bn): about 37%, or about 26% with SCAPR performer collections in the denominator. The published figure takes the upper plausible value as digital mechanical does, and is provisional until statements replace it.",
+        "share_field": "soundexchange_share",
+        "applied_field": "neighbouring_split_applied",
+        "rule": "Neighbouring income divides by collecting route: SoundExchange takes the catalogue's SoundExchange share of the channel and PPL the remainder, so the route shares of a recording survey sum to 1. The share is what is collected through the SoundExchange route, not US territory: SoundExchange takes worldwide mandates and PPL collects from it through reciprocals. It is the attestation's soundexchange_share, separate from us_share because a catalogue's streaming US share is not its SoundExchange share, else default_us_share; the tuple discloses it, its source and whether the split applied. With one route alone in scope that route takes the whole channel. Because an honest neighbouring mix can leave both routes under the materiality threshold, neither can then cap the letter, and the tuple shows it."
+      },
+      {
+        "channel": "performance",
+        "us_routes": ["ascap", "bmi"],
+        "rest_routes": ["prs"],
+        "default_us_share": 0.40,
+        "default_us_share_basis": "The same figure as the digital mechanical split, on the same basis (IFPI Global Music Report 2025: USA and Canada held 40.3% of global recorded revenue in 2024), taken as the upper plausible value of the US share of a catalogue's performance income so that leaving it undeclared never shrinks the US route below what a declaration would; provisional until statements replace it.",
+        "share_field": "us_performing_share",
+        "applied_field": "performing_split_applied",
+        "rule": "Performance income divides by territory where a direct US performing route is in scope beside PRS for Music: the US route takes the catalogue's US performing share of the channel and PRS the remainder, so the route shares sum to 1. The split applies only with a route in scope on each side: a PRS member with no US route in scope leaves the whole channel with PRS, and a direct member with no PRS route gives the whole channel to its US route. The share is the attestation's us_performing_share, else default_us_share; the tuple discloses it, its source and whether the split applied. A survey carries one US performing route, the owner's own affiliate, never both."
+      }
+    ],
+    "rule": "Scope is defined by collecting route, not territory of use. The primary routes of a rights type must be in scope at a tier that applies minimums whenever one of a route's channels shows exploitation in the population; the declared channel mix only weights them. A route's expected-income share is the sum of the channel mix over the channels of the route's rights (channel_by_right), with a channel that income_split names divided between its routes; a registration hub takes no income of its own and has share 0; a route whose share is under materiality_threshold is immaterial and never caps the letter (the tuple discloses each route's share and whether it is material). Route income coverage is no longer a withhold reason: the declared channel mix stands in for it until statements are scored."
+  },
+  "channels": ["digital_mechanical", "physical_mechanical", "performance", "neighbouring", "sync"],
+  "weighting": {
+    "demand_share": 0.75,
+    "equal_share": 0.25,
+    "formula": "b_i = demand_share * sum_c(mix_c * exploitation_ic / sum_j exploitation_jc) + equal_share / N; w_i = s_i * b_i / sum_j(s_j * b_j), with s_i the owner's attributable share of work i on [0, 1]; weights sum to 1 over the attested population",
+    "attributable_share_source": ["attestation", "workspace_shares", "society_chain", "assumed_whole"],
+    "channel_mix_sources": ["statements", "declared", "default_digital", "default_neighbouring"],
+    "default_mix": {"default": {"channel": "digital_mechanical", "source": "default_digital"}, "sound_recording": {"channel": "neighbouring", "source": "default_neighbouring"}},
+    "default_mix_rule": "A survey with no declared mix takes one channel: a recording survey (every position in sound_recording) takes neighbouring, any other survey digital mechanical, so a recording catalogue reads the same route shares whether or not it declares a mix.",
+    "digital_proxy_sufficiency": {"route": "mlc", "channel": "digital_mechanical", "minimum_total_exploitation": 100000, "unless_mix_source": ["statements"], "note": "Under about 100,000 lifetime streams across the catalogue and no US statements, The MLC is immaterial by default: a UK heritage catalogue's fluke-streamed track must not let a route worth nothing cap the letter."},
+    "exploitation_proxy_precedence": {
+      "digital_mechanical": ["statement_lines", "spotify_lifetime_plays", "youtube_views", "mlc_usage_signal", "spotify_annas_dated"],
+      "physical_mechanical": ["distributor_sales", "mcps_statement_lines", "release_footprint"],
+      "performance": ["statement_lines", "spotify_lifetime_plays", "youtube_views"],
+      "neighbouring": ["statement_lines", "spotify_lifetime_plays", "youtube_views"],
+      "sync": ["statement_lines"]
+    },
+    "proxy_conversion": {
+      "youtube_views": {
+        "into": "spotify_lifetime_plays",
+        "estimator": "median_ratio",
+        "minimum_works": 20,
+        "significant_figures": 6,
+        "rule": "Where a channel's works take Spotify lifetime plays and YouTube views together, the views are converted into Spotify-equivalent plays so the channel total adds like with like. The ratio is measured on the catalogue's own works that have both counts: per work, the plays divided by the views over the recordings carrying both, and the ratio is the median of those per-work ratios, rounded to significant_figures; each converted count is rounded to a whole play, half to even. The ratio, the number of works it was measured on and the dates of both snapshots are frozen into the event. Fewer than minimum_works such works: the views are not used where plays are (those works carry the equal share only), and the event says so. A channel in which no work takes plays keeps raw views, since nothing is mixed."
+      }
+    },
+    "rules": [
+      "Observed income never sets weights on its own: footprint is the floor, income can only raise a weight.",
+      "A channel whose exploitation total is zero is dropped from the mix and the remaining mix is renormalised; the event records it.",
+      "Works with no proxy in any channel carry only their equal share and are reported as the unweighted tail.",
+      "Each work's weight is scaled by the owner's attributable share before the weights renormalise: the attestation's declared shares, else the Workspace draft's writer and publisher shares, else the society chain, else 1 disclosed as assumed whole; every work states its source and the tuple counts works by source. A 1% stake in a work carries 1% of the weight it would at 100% relative to every other work; share 1 everywhere leaves the weights unchanged.",
+      "A work's income weight at a route is the demand term alone over the channels of the route's rights, scaled by the attributable share and renormalised over the population: the equal-weight pool never counts towards a floor, so unregistered demos with no exploitation cannot trip one. A channel that income_split divides counts at the route's part of it. Route materiality is the route's expected-income share, with the digital proxy sufficiency gate on The MLC.",
+      "The usage snapshot (source, date) is frozen into the event."
+    ]
+  },
+  "components": {
+    "identity": {"weight": 15, "coverage_minimum": {"by": "count", "value": 0.90, "over": "clusters", "or": {"by": "weight", "value": 0.95, "count": 0.75}}, "survey_element": "deeds and title plan", "resolution_rule": "A recording is placed on a society work by the strongest reading that names one: the society's own listing of the recording, the owner's held work number, an equivalent recording already placed, a title search at the society, a CWR acknowledgement, the owner's work list by code and then by name, and last a person's decision in the attestation, which places a work no other reading places, for the survey only. The method that placed each work is kept with the reading. CIS-Net places a work without setting a society work number: the work is read on the societies' records that carry one of the owner's parties by IPI name number, found by the work's ISWC and otherwise by its title, matched on the records' full titles so that a version a society registers separately is not read as the same registration; a record of the title under an ISWC other than the work's own is left out; where the title finds two songs that share no creator, nothing is placed (a society's stand-in for a creator it does not know names no creator). A work a fresh CIS-Net reading places has a registry record of it read. That placing is the identity reading for a work no higher-ranked reading has read, which is how the work of an owner outside PRS is read."},
+    "title": {"weight": 20, "coverage_minimum": {"by": "weight", "value": 0.80}, "survey_element": "land registry entry", "share_tolerance_points": 0.5, "share_rule": "For a work bound to one of the owner's agreements, the share the society holds for the owner of each right the agreement covers is compared with the share the agreement documents for that right, scaled by the owner's declared attributable share of the work where one is declared and taken whole otherwise. A society share lower than the documented share by more than share_tolerance_points of a hundred is title.society_share_lower_than_documented, with the gap as its factor; a higher one is title.society_share_higher_than_documented. The comparison is made only where the society holds a positive share for the owner (a work the owner is absent from or holds at nothing is a registration reading) and only on readings inside their age limits: a bound work whose society record is past its limit, or was not read, is unverified for title with that reading's reason, because a sound title says the shares agree."},
+    "registration": {"weight": 30, "coverage_minimum": {"by": "weight", "value": 0.80, "scope": "per_primary_route"}, "survey_element": "services connected", "route_rule": "A registration defect costs a work the route's share of its income, not the whole work. The work's factor is the sum over the routes in scope of route share times that route's factor, the largest of its scored rows, divided by the sum of the shares of the routes actually read: routes with a scored row or read sound or defective. A route not read (unverified, or no state) sits outside both sums, neither credited nor charged, so a defect beside an unread route is charged against the routes that were read; a work with no defect and an unread route stays unverified as before, out of the score and in coverage. Shares are the catalogue's, not the work's own channel mix. A row naming no route in scope costs the whole work. Where the routes read have no share between them (no channel of theirs is live), the largest factor stands. Materiality does not touch this: an immaterial route still costs its share. The work stays defective even if the weighted factor rounds to 0."},
+    "collection": {"weight": 25, "coverage_minimum": null, "survey_element": "rent roll", "optional": true, "not_supplied_label": "collection not assessed"},
+    "risk": {"weight": 10, "coverage_minimum": null, "survey_element": "structural and legal defects", "read_by_routes": ["prs", "mcps", "mlc"], "read_rule": "A work is sound for risk when at least one route listed in read_by_routes, the routes with a risk check, was read, sound or defective, and raised no risk; a work no such route could read is unverified, not_supplied, whatever other routes read it. Sound means no risk was seen at the routes read, and only for the classes read today: a class marked not_yet_read cannot yet be seen."}
+  },
+  "coverage": {
+    "ladder": [[0.95, "AA"], [0.90, "A"], [0.85, "BBB"]],
+    "ladder_applies_to": ["title", "registration"],
+    "single_work_share": 0.02,
+    "collection_not_assessed_cap": "A",
+    "collection_not_assessed_rule": "When no collection evidence is supplied the collection component is not assessed and carries no weight in the composite, and the letter is capped at collection_not_assessed_cap, reported with the floors as collection_not_assessed. It is a limit of scope, not a defect: the letter then describes registration alone and says nothing about whether money is arriving, and the rating is labelled a registration rating with collection not assessed. The tuple's collection_assessed says which.",
+    "single_work_reasons": ["not_supplied", "lookup_budget_exhausted", "source_unavailable"],
+    "issue_refused_reasons": ["lookup_budget_exhausted"],
+    "issue_refused_material_reasons": ["copy_predates_release"],
+    "material_top_works": 20,
+    "issue_refused_material_rule": "A work is material when its weight is at or above single_work_share of the total weight or it is among the top material_top_works works by weight. Issue is refused while any material work is unverified in any component or route for one of issue_refused_material_reasons: the copy's age is TrackForge's own limit, and an issued rating never leaves a material work unchecked for it; a live reading of the release removes the reason. Below that weight the reason is ordinary coverage shortfall. Draft and rehearsal runs keep their letter.",
+    "top_up": "The top-up set is the material works that would refuse issue under issue_refused_material_rule. They are read in weight order, heaviest first, until none remains: first live, from a public catalogue read on the day (a live_release_read), then, where the live read finds nothing, by a person (a manual_reading, named on the rating with who read it and when). A top-up reading is a dated source like any other: pinned by the hash of what was read, carried in the frozen proof pack, listed with the sources on the rating; it sets identity and title only and decides no route's registration state. The run report lists the set, what each reading found and the count left; an issued rating carries the count of works read by each top-up source.",
+    "cluster_key": "a cluster is a work with its versions and stems, keyed by the base title with version text removed and the artist's name; a work with no title, a generic title or no artist is its own cluster",
+    "rule": "Coverage is a ladder on the letter, not a cliff. At a tier that applies minimums, title coverage by weight and registration coverage by weight at each route in scope cap the letter at AA below 0.95, A below 0.90 and BBB below 0.85 (the worst step met wins, reported with the floors as coverage_ladder); below the coverage minimum the letter is withheld as before. No letter is issued while any single work above single_work_share of the total weight is unverified in any component or route for one of single_work_reasons (too_recent and pending_publication are source timing, not withheld evidence). An issued run has no lookup budget: issue is refused while any work at all, whatever its weight, is unverified in any component or route for one of issue_refused_reasons, because the budget is TrackForge's own cap on live lookups, a gap of TrackForge's own making and never a reason on an issued rating; draft and rehearsal runs may still cap and keep their letter. The identity minimum is a dual gate over clusters, not works: 0.90 of clusters by count, or 0.95 of weight with 0.75 of clusters by count; a cluster is applicable when one of its works is, and assessed when one of its works is sound or defective, so versions and stems count once under their parent."
+  },
+  "states": {
+    "work_component": ["sound", "defective", "unverified", "not_applicable"],
+    "work_condition": ["sound", "defective", "unverified"],
+    "work_condition_rule": "any defective component -> defective; else any unverified component -> unverified; else sound",
+    "unverified_reasons": ["not_supplied", "too_recent", "pending_publication", "lookup_budget_exhausted", "source_unavailable", "stale", "copy_predates_release"],
+    "rule": "Unverified is only an outcome of a recorded source limit, never a choice, and every unverified state carries its reason; a work's registration state takes the reason of its first unread route in this list's order. The attestation fixes the population before lookups run."
+  },
+  "evidence": {
+    "sources": {
+      "portal": {
+        "label": "the society's member portal or works database, read directly",
+        "proves": "the current registration record: the chain, the shares and the work's identifiers; the only direct read of the registration table",
+        "sets": ["registration", "title", "identity", "collection"],
+        "age_limit_days": {"prs": 60, "mcps": 60, "ice": 60, "mlc": 30, "ppl": 365, "soundexchange": 365, "default": 60}
+      },
+      "bulk": {
+        "label": "the society's public bulk data (The MLC only, five-daily)",
+        "proves": "the registration record as published in bulk, a few days behind the portal",
+        "sets": ["registration", "title", "identity", "collection"],
+        "age_limit_days": {"mlc": 30, "default": 30}
+      },
+      "acknowledgement": {
+        "label": "a CWR acknowledgement",
+        "proves": "the file entered the society's queue, with a society work id where one was returned; not that shares were accepted against an incumbent",
+        "sets": ["identity"],
+        "age_limit_days": {"prs": 45, "mcps": 45, "ice": 45, "mlc": 21, "default": 45}
+      },
+      "owner_export": {
+        "label": "the owner's own export of its account",
+        "proves": "the portal as the owner saw it, undated and unsigned",
+        "sets": ["registration", "title", "identity"],
+        "age_limit_days": {"prs": 45, "mcps": 45, "ice": 45, "mlc": 30, "default": 45}
+      },
+      "statement": {
+        "label": "a statement line",
+        "proves": "collection for its usage period, compared on the usage period and never the distribution date",
+        "sets": ["collection"],
+        "age_limit_days": {"prs": 180, "mcps": 180, "mlc": 90, "default": 180}
+      },
+      "cisnet": {
+        "label": "CIS-Net",
+        "proves": "identity and presence; never a route's registration state",
+        "sets": ["identity"],
+        "age_limit_days": {"default": 90}
+      },
+      "release_credit": {
+        "label": "the \u2117 credit on the release, as TrackForge's copy of the release carries it",
+        "proves": "who released the recording as \u2117 holder (the credit the releasing party delivered); independent of the registries and of the attestation, not of the owner where the owner delivered the release; it corroborates or contradicts the declared master holder and never sets a route's registration state",
+        "sets": ["title"],
+        "age_limit_days": {"default": null}
+      },
+      "register_copy": {
+        "label": "a dated copy TrackForge holds of a public register or catalogue: the US Copyright Office's records; the Deezer, Tidal, Beatport and MusicBrainz catalogues",
+        "proves": "what the register or catalogue carried at the copy's date: a recording's identifiers, titles, artist and length, its work links, and US copyright registrations and recorded notices; never a route's registration state. A release newer than the copy is copy_predates_release, not absent: the copy's age is TrackForge's limit, not the register's",
+        "sets": ["identity", "title"],
+        "age_limit_days": {"default": null}
+      },
+      "live_release_read": {
+        "label": "a public catalogue read live on the day for the top-up set, dated by the read",
+        "proves": "what the catalogue carried on the day it was read: the recording's artist, title and length, and the \u2117 credit on its release, read on the same terms as the dated copies; never a route's registration state. Read only for the top-up set, never for every work",
+        "sets": ["identity", "title"],
+        "age_limit_days": {"default": null}
+      },
+      "manual_reading": {
+        "label": "a reading made by a named person of a named page or document on a named date",
+        "proves": "what the page or document showed on that date, as the reader recorded it: the recording's artist, title and length, and the \u2117 credit on its release; accepted on the same terms whoever made it, and named on the rating with who read it and when; never a route's registration state",
+        "sets": ["identity", "title"],
+        "age_limit_days": {"default": null}
+      },
+      "attestation": {
+        "label": "the owner's attestation",
+        "proves": "the claim; fixes the population and decides no route's state. The one defect read from it alone is a recording it lists that is exploited with no usable ISRC",
+        "sets": [],
+        "age_limit_days": {"default": null}
+      }
+    },
+    "rank": {
+      "registration": ["portal", "bulk", "owner_export"],
+      "title": ["portal", "bulk", "owner_export", "release_credit", "live_release_read", "manual_reading", "register_copy"],
+      "identity": ["acknowledgement", "portal", "bulk", "owner_export", "cisnet", "register_copy", "live_release_read", "manual_reading"],
+      "collection": ["statement", "portal", "bulk"]
+    },
+    "live_reads": "A table TrackForge reads live has no snapshot of its own: its source row is a dated read, with the read time as snapshot_id and the hash of the rows the run read as content_hash; those rows travel in the frozen pack. The MLC's bulk data carries the hash of its snapshot manifest.",
+    "ageless_components": ["identity"],
+    "ageless_exceptions": ["cisnet"],
+    "age_limits_status": "starting limits, not yet calibrated; PPL and SoundExchange take 365 days because their readings are whole-catalogue runs, not routine re-reads",
+    "rules": [
+      "Two reads of the same kind of source: the newer wins.",
+      "Sources of different kinds that disagree inside their limits: a conflict, recorded as risk.conflicting_evidence; the highest-ranked fresh reading still decides the state, so a manufactured disagreement cannot hide a defect.",
+      "A reading older than its route's age limit never decides; when every reading that could decide is past its limit the state is unverified, stale.",
+      "An acknowledgement proves the file entered the society's queue; it never sets a route's registration state.",
+      "CIS-Net proves identity and presence, never a route's registration state.",
+      "A statement line is compared on its usage period, never its distribution date, and speaks only to collection.",
+      "Identity readings do not age: a society's assignment of a work number stands until the society merges it. A CIS-Net reading is the exception: it shows what the societies' databases held on the day it was read, so it keeps its own age limit and past it decides nothing: a work only such a reading names keeps the state and reason it would have without it.",
+      "A CIS-Net reading decides the identity state only of a work no higher-ranked reading has read; the ISWCs of a placing found by the work's own ISWC are compared with every other source's on every work, and a placing found by title, which may rest on another song of that title, is compared only within itself and sets no ISWC on the work."
+    ]
+  },
+  "scope": {
+    "exclusion_reasons": {
+      "income_assigned_to_third_party": "The owner is recorded on the work at a route, but under an agreement the owner attests to, the work's income belongs to a third party (for example works sold on with the owner left on the chain). The work is not the owner's property to grade."
+    },
+    "identifier_kinds": ["work_key", "tunecode", "iswc", "isrc"],
+    "requires": ["reason", "attested_by", "attested_at", "evidence_ref"],
+    "rule": "A grading scope removes works from the attested population before weights are computed, and only with a listed reason, a named attester, a date and an evidence reference. Excluded works are never scored. The tuple discloses the scope hash, each excluded work by key and reason, and the weight share the excluded works would have carried. A work matched only through an alternative tunecode stays in the population and is noted."
+  },
+  "money": {
+    "amount_sources": ["society_figure", "statement_line"],
+    "unit": "integer pence, GBP",
+    "no_amounts_label": "no amounts",
+    "rule": "A rating carries measured amounts only: a figure a society shows for the work, or a statement line, on a class with carries_amount, each row naming its amount_source. A component with no such row reports no amount, never zero, and the tuple's amounts block says no_amounts. Amounts never move the letter. Modelled estimates, recovery.valuations among them, are not amounts: a work-value estimate belongs in the Fix plan as a labelled band, outside the signed rating."
+  },
+  "estimated_inputs": {
+    "fields": {
+      "us_share": {"type": "share"},
+      "soundexchange_share": {"type": "share"},
+      "us_performing_share": {"type": "share"},
+      "channel_mix": {"type": "mix_channel"}
+    },
+    "requires": ["basis", "low", "high"],
+    "rule": "A declared income input not yet measured from settled statements is an estimate: it carries its value, a stated basis and a plausible range holding the value. channel_mix names one channel's range and the other declared channels scale in proportion. The run re-rates at every combination of the range ends, the tuple's estimated_inputs lists each combination's letter, and the letter is the lowest of those and the letter at the declared values. The composite and components are those at the declared values. An input measured from settled statements states them as its basis, with low and high equal to the value. A run may not issue on a declared input with no such entry."
+  },
+  "in_flight": {
+    "classes": {
+      "1": {
+        "label": "acknowledged and uncontested",
+        "evidence": "a CWR acknowledgement or a portal receipt accepting a unilateral registration or claim into an open share",
+        "defect_classes": [
+          "registration.not_registered_where_exploited",
+          "registration.registered_share_lower_than_owned",
+          "registration.registered_share_higher_than_owned",
+          "registration.nr_recording_absent_from_ppl_or_sx"
+        ]
+      },
+      "2": {
+        "label": "contested or bilateral",
+        "evidence": "an overclaim against an incumbent, an ICE dispute or merge ticket, or a formal claim on a third party",
+        "defect_classes": [
+          "registration.registered_under_another_party_only"
+        ]
+      }
+    },
+    "directions": ["improves", "worsens"],
+    "statuses": ["open", "expired"],
+    "limits": {
+      "prs": {"NWR": 45, "REV": 45, "default": 45},
+      "mcps": {"NWR": 45, "REV": 45, "default": 45},
+      "ice": {"NWR": 45, "REV": 45, "default": 45},
+      "mlc": {"NWR": 21, "REV": 21, "claim": 21, "default": 21},
+      "default": {"default": 45}
+    },
+    "limits_status": "starting values, equal to the acknowledgement age limits; to be replaced by observed turnaround medians by methodology version",
+    "partial_landing_class": "registration.registered_share_lower_than_owned",
+    "escalation": {
+      "1": "stalled at society",
+      "2": "counterparty silent"
+    },
+    "outlook": {
+      "words": ["positive", "stable", "negative", "developing"],
+      "signed_weight_above": 0.02,
+      "class_2_weight_above": 0.05,
+      "median": "lower median of the days from the clock to each open item's expected_by",
+      "rule": "The signed weight is the share of catalogue weight with items in flight, positive where they would raise the letter and negative where they would lower it: the weight of works with an open item that improves less the weight of works with an open item that worsens, over the total weight, at the disclosure scale. The outlook is developing when the weight of works with an open class 2 item is above class_2_weight_above of the total weight; otherwise positive when the signed weight is above signed_weight_above, negative when it is below minus signed_weight_above, and stable between. The outlook's change in money counts only measured amounts on the defect rows the open items cover, signed by direction; where none exists it says no amounts, never zero. Expired items are not in the outlook."
+    },
+    "guardrails": [
+      "The signed weight is the share of catalogue weight with items in flight, positive where they would raise the letter and negative where they would lower it.",
+      "The outlook's \"£ change\" counts only measured amounts, or says \"no amounts\", never £0.",
+      "developing applies when material weight sits in class 2.",
+      "Class 2 never moves the projected letter.",
+      "The projected letter is never worse than the actual, is capped by every floor that caps the actual, and never appears without the actual."
+    ],
+    "rule": "In flight is an overlay on a defect row, never a state: the actual letter always sees the underlying defect and is computed exactly as with no overlay. An item is keyed to its defect (work, route, class, target share), so its clock (since) runs from the first transaction for that defect and a second transaction never resets it; expected_by is since plus the limit for the route and transaction type. An item is evidence of a transaction a society acknowledged, never the owner's own to-do. An item whose expected_by has passed at the run's clock is expired: it overlays nothing, the defect stays in both letters, and the fix list escalates with the class's escalation words. The projected letter re-rates a copy of the population with every open class 1 item that improves landed at the share the acknowledgement confirms: at the full share the row is about, the row is removed; at a confirmed share below it the row becomes partial_landing_class with the gap left; a route with no scored row left is read sound. Class 2 and items that worsen never land. The projected letter is the better of the actual letter and the re-rated letter under every cap applied to the actual; it is null whenever the actual letter is null."
+  },
+  "kinds": {
+    "leak": "losing money now; moves the grade",
+    "risk": "could lose money later; moves the grade",
+    "opportunity": "income not yet earned; valued and listed, never scored"
+  },
+  "factors": {"full": 1.0, "partial": 0.5, "minor": 0.25, "share_gap": "share_gap"},
+  "defect_classes": [
+    {"id": "identity.exploited_recording_without_isrc", "component": "identity", "kind": "leak", "factor": 1.0, "label": "Exploited recording has no ISRC", "note": "cannot be matched anywhere", "read_by": ["attestation"]},
+    {"id": "identity.isrc_collision", "component": "identity", "kind": "risk", "factor": 1.0, "label": "ISRC collision or recycling", "note": "one ISRC carries two recordings: two songs' titles at one source, or, in TrackForge's copies of the Deezer, Tidal and Beatport catalogues, tracks that differ in artist or in length by more than 3 seconds; two titles on one artist and one length are cross_source_metadata_inconsistency instead", "read_by": ["portal", "register_copy", "live_release_read"]},
+    {"id": "identity.work_without_iswc_where_route_allocates", "component": "identity", "kind": "risk", "factor": 0.5, "label": "Work has no ISWC where the route allocates one", "opportunity": "request ISWC allocation", "read_status": "not_yet_read", "read_by": []},
+    {"id": "identity.conflicting_iswcs", "component": "identity", "kind": "risk", "factor": 1.0, "label": "Conflicting ISWCs for one work", "read_by": ["portal", "acknowledgement", "cisnet", "register_copy"]},
+    {"id": "identity.writer_without_ipi_on_controlled_share", "component": "identity", "kind": "risk", "factor": 0.5, "label": "Writer without IPI on a controlled share", "note": "on CIS-Net: a creator shown without an IPI name number on a society's record of a work the owner publishes, and with one on no other record of the work; a society's stand-in for a creator it does not know is not a writer", "read_by": ["portal", "cisnet"]},
+    {"id": "identity.duplicate_work_registrations", "component": "identity", "kind": "risk", "factor": 0.5, "label": "Duplicate work registrations", "note": "two tunecodes or song codes for one work; on CIS-Net, two work numbers at one society in one repertoire", "opportunity": "merge", "read_by": ["portal", "owner_export", "cisnet"]},
+    {"id": "identity.cross_source_metadata_inconsistency", "component": "identity", "kind": "risk", "factor": 0.25, "label": "Title, artist or duration inconsistent across sources", "read_by": ["portal", "register_copy", "live_release_read", "manual_reading"]},
+    {"id": "identity.work_identity_unresolved", "component": "identity", "kind": "risk", "factor": 1.0, "label": "Work identity unresolved", "note": "recording known, work not resolvable from any source", "read_by": ["portal", "bulk", "acknowledgement", "owner_export"]},
+
+    {"id": "title.agreement_binding_inferred", "component": "title", "kind": "risk", "factor": 0.5, "label": "PRS agreement binding inferred or assumed", "note": "dispute-prone", "read_by": ["portal", "owner_export"]},
+    {"id": "title.agreement_binding_missing_or_conflicting", "component": "title", "kind": "risk", "factor": 1.0, "label": "PRS agreement binding missing or conflicting", "read_by": ["portal", "owner_export"]},
+    {"id": "title.society_share_lower_than_documented", "component": "title", "kind": "leak", "factor": "share_gap", "label": "Society holds a lower share than documented", "note": "money going elsewhere", "per_route": true, "read_by": ["portal", "attestation"]},
+    {"id": "title.society_share_higher_than_documented", "component": "title", "kind": "risk", "factor": 0.5, "label": "Society holds a higher share than documented", "note": "overclaim exposure", "per_route": true, "read_by": ["portal", "attestation"]},
+    {"id": "title.usco_registration_absent_us_origin", "component": "title", "kind": "risk", "factor": 0.25, "label": "No US Copyright Office registration (US-origin work)", "opportunity": "register with the USCO", "applies_when": "us_origin", "read_by": ["register_copy"]},
+    {"id": "title.recorded_termination_notice", "component": "title", "kind": "risk", "factor": 1.0, "label": "Recorded termination notice", "read_by": ["register_copy"]},
+    {"id": "title.reversion_or_term_expiry_within_24_months", "component": "title", "kind": "risk", "factor": 0.5, "label": "Reversion or term expiry within 24 months", "read_status": "not_yet_read", "read_by": []},
+    {"id": "title.release_credits_another_party", "component": "title", "kind": "risk", "factor": 0.5, "label": "The release's \u2117 credit names another party", "note": "a credit that names another party is a question, not a finding; it becomes a defect only when a registry (PPL or SoundExchange) names the same party as the recording's registered holder, so the release and the registry agree the master sits with someone other than the declared owner: a licence, or a wrong declaration; either mis-routes neighbouring-rights income. A credit naming the owner anywhere is sound; one naming another party that no registry corroborates is unverified, not_supplied (an agreement or licence is needed); one naming only the artist, or only a distributor's default credit, corroborates nothing", "position_class": "sound_recording", "read_by": ["release_credit", "live_release_read", "manual_reading", "portal"]},
+
+    {"id": "registration.not_registered_where_exploited", "component": "registration", "kind": "leak", "factor": 1.0, "label": "Not registered at a route where the work is exploited", "per_route": true, "carries_amount": true, "read_by": ["portal", "bulk", "owner_export"]},
+    {"id": "registration.registered_under_another_party_only", "component": "registration", "kind": "leak", "factor": 1.0, "label": "Registered under another party only", "note": "income to the wrong party", "per_route": true, "carries_amount": true, "read_by": ["portal", "bulk", "owner_export"]},
+    {"id": "registration.registered_share_lower_than_owned", "component": "registration", "kind": "leak", "factor": "share_gap", "label": "Registered share lower than owned", "per_route": true, "carries_amount": true, "read_by": ["bulk"]},
+    {"id": "registration.registered_share_higher_than_owned", "component": "registration", "kind": "risk", "factor": 0.5, "label": "Registered share higher than owned", "per_route": true, "read_by": ["bulk"]},
+    {"id": "registration.nr_recording_absent_from_ppl_or_sx", "component": "registration", "kind": "leak", "factor": 1.0, "label": "Exploited recording absent from PPL or SoundExchange", "position_class": "sound_recording", "per_route": true, "carries_amount": true, "read_by": ["portal"]},
+
+    {"id": "collection.usage_unmatched_at_mlc", "component": "collection", "kind": "leak", "factor": 1.0, "label": "Registered, usage unmatched at The MLC", "opportunity": "match the recording", "carries_amount": true, "read_by": ["bulk"]},
+    {"id": "collection.usage_matched_to_different_work", "component": "collection", "kind": "risk", "factor": 0.5, "label": "Usage matched to a different work at The MLC", "note": "a recording's ISRC is joined to another song's work: the ISRC reached The MLC under two titles, or a wrong match; either way usage matched there is paid on that work", "opportunity": "correct the match or the ISRC", "read_by": ["bulk"]},
+    {"id": "collection.unclaimed_share_in_pools", "component": "collection", "kind": "leak", "factor": 1.0, "label": "Unclaimed share in the MLC, PRS or MCPS pools", "opportunity": "claim", "carries_amount": true, "read_by": ["portal", "bulk"]},
+    {"id": "collection.no_income_despite_usage", "component": "collection", "kind": "leak", "factor": 1.0, "label": "No income over the look-back despite usage", "note": "suspected; names the route", "read_status": "not_yet_read", "read_by": []},
+    {"id": "collection.income_to_wrong_payee", "component": "collection", "kind": "leak", "factor": 1.0, "label": "Income to the wrong payee", "note": "payee setup, missing letter of direction; names the route", "per_route": true, "read_status": "not_yet_read", "read_by": []},
+    {"id": "collection.account_hold", "component": "collection", "kind": "risk", "factor": 0.5, "label": "Account on hold (e.g. MLC RFI)", "catalogue_level": true, "read_status": "not_yet_read", "read_by": []},
+
+    {"id": "risk.competing_claim_or_dispute", "component": "risk", "kind": "risk", "factor": 1.0, "label": "Competing claim or dispute flagged at a society", "read_by": ["portal", "bulk"]},
+    {"id": "risk.unmerged_duplicate_shell_at_mlc", "component": "risk", "kind": "risk", "factor": 0.5, "label": "Un-merged duplicate shell at The MLC", "read_by": ["bulk"]},
+    {"id": "risk.conflicting_evidence", "component": "risk", "kind": "risk", "factor": 0.5, "label": "Sources disagree inside their age limits", "note": "the highest-ranked source decides the state; the disagreement is a risk until a fresh read settles it", "read_by": ["portal", "bulk", "owner_export"]},
+    {"id": "risk.claim_window_closing", "component": "risk", "kind": "risk", "factor": 0.5, "label": "Claim window closing (e.g. MCPS three-year clock)", "opportunity": "claim now", "read_status": "not_yet_read", "read_by": []},
+    {"id": "risk.administration_or_subpublishing_ending", "component": "risk", "kind": "risk", "factor": 0.5, "label": "Administration or sub-publishing agreement ending", "read_status": "not_yet_read", "read_by": []},
+
+    {"id": "opportunity.registration_without_exploitation", "component": "opportunity", "kind": "opportunity", "factor": null, "label": "Registered, not yet exploited", "read_status": "not_yet_read", "read_by": []},
+    {"id": "opportunity.registered_outside_in_scope_routes", "component": "opportunity", "kind": "opportunity", "factor": null, "label": "Registered at a society outside the in-scope routes", "note": "seen in CIS-Net", "read_status": "not_yet_read", "read_by": []},
+    {"id": "opportunity.nr_not_claimed", "component": "opportunity", "kind": "opportunity", "factor": null, "label": "Neighbouring rights not claimed", "read_by": ["portal"]},
+    {"id": "opportunity.sync_not_represented", "component": "opportunity", "kind": "opportunity", "factor": null, "label": "Sync not represented", "read_status": "not_yet_read", "read_by": []},
+    {"id": "opportunity.physical_not_registered", "component": "opportunity", "kind": "opportunity", "factor": null, "label": "Physical exploitation not registered or claimed", "read_status": "not_yet_read", "read_by": []},
+    {"id": "opportunity.usco_registration_available", "component": "opportunity", "kind": "opportunity", "factor": null, "label": "US Copyright Office registration available", "read_by": ["register_copy"]}
+  ],
+  "read_status_rule": "A class marked read_status not_yet_read is a rule no reader raises yet: the survey cannot see it, so a sound state says nothing about it, and the method statement lists it as not checked. A class with no mark is read. Every class names in read_by the kinds of evidence (evidence.sources) a reading can raise it from; a class not yet read names none.",
+  "floors": [
+    {"id": "coverage_below_minimum", "condition": {"metric": "coverage_minimums_met", "equals": false}, "effect": "no_rating", "note": "check only; shortfall named"},
+    {"id": "missing_isrc_tenth_by_count", "condition": {"metric": "share_of_works_with_class", "classes": ["identity.exploited_recording_without_isrc"], "by": "count", "above": 0.10}, "cap": "BB"},
+    {"id": "unregistered_tenth_by_income_weight", "condition": {"metric": "share_of_works_with_class", "classes": ["registration.not_registered_where_exploited", "registration.registered_under_another_party_only", "registration.nr_recording_absent_from_ppl_or_sx"], "by": "income_weight", "per_route": true, "materiality": true, "above": 0.10}, "cap": "BBB"},
+    {"id": "unregistered_quarter_by_income_weight", "condition": {"metric": "share_of_works_with_class", "classes": ["registration.not_registered_where_exploited", "registration.registered_under_another_party_only", "registration.nr_recording_absent_from_ppl_or_sx"], "by": "income_weight", "per_route": true, "materiality": true, "above": 0.25}, "cap": "CCC"},
+    {"id": "agreement_missing_quarter_by_weight", "condition": {"metric": "share_of_works_with_class", "classes": ["title.agreement_binding_missing_or_conflicting"], "by": "weight", "above": 0.25, "requires_route": "prs"}, "cap": "BBB"},
+    {"id": "wrong_party_income_twentieth_by_income_weight", "condition": {"metric": "share_of_works_with_class", "classes": ["collection.income_to_wrong_payee", "registration.registered_under_another_party_only"], "by": "income_weight", "per_route": true, "materiality": true, "above": 0.05}, "cap": "BB"},
+    {"id": "termination_or_dispute_on_top_decile", "condition": {"metric": "any_class_in_top_weight_share", "classes": ["title.recorded_termination_notice", "risk.competing_claim_or_dispute"], "top_share": 0.10}, "cap": "A"}
+  ],
+  "floors_rule": "A floor with per_route is evaluated once per route in scope over the defect rows that name that route; one with by income_weight reads the hit works' income weight at the route as a share of the route's whole income weight, never the blended weight, multiplies it by the route's expected-income share and compares that share of the catalogue's income to the floor's share: route share times hit income strictly above the floor's share times the route's income, an exact cross-multiplication at the unit scale. The gap within the route is kept at full size on the floor entry (route_gap) and, floor or no floor, in the tuple's route_gaps, immaterial routes included; one with materiality is never applied at a route that is immaterial. The lowest cap of every applied floor wins.",
+  "thresholds": [
+    [95, "AAA"],
+    [90, "AA"],
+    [82, "A"],
+    [72, "BBB"],
+    [62, "BB"],
+    [52, "B"],
+    [40, "CCC"],
+    [30, "CC"],
+    [20, "C"],
+    [0, "D"]
+  ],
+  "scale_wording": {
+    "applies_to_every_letter": "A letter describes the registration condition of the catalogue on its date. It is not a valuation, a credit rating or a legal opinion on title.",
+    "letters": {
+      "AAA": "Registration is in order; only isolated minor items remain.",
+      "AA": "Very few defects, none on the main earners.",
+      "A": "Sound overall; defects are minor and not concentrated.",
+      "BBB": "Adequate: most income is sound, with some material defects to fix.",
+      "BB": "Noticeable income is exposed; expect a remediation plan before relying on it.",
+      "B": "Substantial defects across the catalogue.",
+      "CCC": "Widespread defects; much of the income is at risk now.",
+      "CC": "Most of the catalogue is defective.",
+      "C": "Nearly all of the catalogue is defective.",
+      "D": "The registration position cannot be relied on."
+    }
+  },
+  "plain_names": {
+    "components": {
+      "identity": {"name": "Identity", "question": "Can each work and recording be told apart and matched: ISRC, ISWC, writer IPIs, one registration per work."},
+      "title": {"name": "Title", "question": "Is the owner's claim to each work backed by a PRS agreement that binds the work."},
+      "registration": {"name": "Registration", "question": "Is each work registered, under the owner, at every society where it earns."},
+      "collection": {"name": "Collection", "question": "Is the money that the registrations should bring in actually arriving."},
+      "risk": {"name": "Risk", "question": "Disputes, competing claims, duplicate shells and sources that disagree."}
+    },
+    "routes": {"prs": "PRS for Music", "mcps": "MCPS", "ice": "ICE", "mlc": "The MLC", "ppl": "PPL", "soundexchange": "SoundExchange", "ascap": "ASCAP", "bmi": "BMI"},
+    "states": {"sound": "Sound", "defective": "Defective", "unverified": "Not checked", "not_applicable": "Not relevant"},
+    "unverified_reasons": {
+      "not_supplied": "not supplied",
+      "too_recent": "too recent to appear",
+      "pending_publication": "waiting for the society to publish it",
+      "lookup_budget_exhausted": "not reached in this run",
+      "source_unavailable": "source could not be read",
+      "stale": "reading past its age limit",
+      "copy_predates_release": "TrackForge's copy predates the release"
+    },
+    "parties": {"client": "the client", "society": "the society", "trackforge": "TrackForge"},
+    "unverified_reason_who": {
+      "not_supplied": {"who": "client", "says": "The client has not supplied the evidence that would answer: the society export, statement or agreement this check reads. For risk, no reading of the work at PRS, MCPS or The MLC, the routes with a risk check."},
+      "too_recent": {"who": "society", "says": "The work or release is newer than the society's record has caught up with. Nobody has failed; a later run reads it."},
+      "pending_publication": {"who": "society", "says": "The registration is in the society's queue and the society has not yet published it."},
+      "lookup_budget_exhausted": {"who": "trackforge", "says": "TrackForge's run did not read the work at this source: it stopped short, or never read this code there. Issue is refused while any work is in this state, whatever its weight; a draft keeps its letter."},
+      "source_unavailable": {"who": "trackforge", "says": "TrackForge could not read the source, or the source did not say whose the work is. TrackForge reads it again."},
+      "stale": {"who": "trackforge", "says": "TrackForge's only readings are older than the source's age limit, so none may decide. TrackForge reads it again."},
+      "copy_predates_release": {"who": "trackforge", "says": "The release is newer than TrackForge's dated copy of the catalogue it is read from, so the copy cannot have it. The limit is TrackForge's, not the society's; a live reading of the release removes it, and an issued rating never leaves a material work in this state."}
+    },
+    "channels": {
+      "digital_mechanical": "digital mechanical",
+      "physical_mechanical": "physical mechanical",
+      "performance": "performance",
+      "neighbouring": "neighbouring rights",
+      "sync": "sync"
+    },
+    "floors": {
+      "coverage_below_minimum": "coverage below the minimum: no letter",
+      "missing_isrc_tenth_by_count": "more than a tenth of works lack an ISRC",
+      "unregistered_tenth_by_income_weight": "more than a tenth of a route's income unregistered",
+      "unregistered_quarter_by_income_weight": "more than a quarter of a route's income unregistered",
+      "agreement_missing_quarter_by_weight": "more than a quarter of works without a PRS agreement binding",
+      "wrong_party_income_twentieth_by_income_weight": "more than a twentieth of a route's income going to the wrong party",
+      "termination_or_dispute_on_top_decile": "a termination notice or dispute among the largest works"
+    },
+    "terms": {
+      "letter_before_caps": "letter before caps",
+      "coverage_ladder": "coverage cap",
+      "collection_not_assessed": "collection not assessed",
+      "floor": "floor",
+      "composite": "composite",
+      "component": "component",
+      "route": "route",
+      "attributable_share": "attributable share",
+      "income_weight": "income weight",
+      "largest_works": "largest works",
+      "projected_letter": "projected letter",
+      "outlook": "outlook",
+      "money_at_risk": "money at risk",
+      "no_amounts": "no amounts"
+    },
+    "attributable_share_sources": {
+      "attestation": "declared by the owner",
+      "workspace_shares": "from the owner's Workspace draft",
+      "society_chain": "from the society's chain",
+      "assumed_whole": "assumed whole"
+    },
+    "amount_sources": {"society_figure": "figure shown by the society", "statement_line": "statement line"},
+    "source_kinds": {"society_read": "society read", "public_bulk_data": "public bulk data", "public_data": "public data", "owners_own": "owner's own", "trackforge_records": "TrackForge's records"},
+    "sources": {
+      "prs_wacd": {"name": "PRS works database, read directly", "kind": "society_read"},
+      "prs_wacd_isrc_listings": {"name": "PRS works database, recording listings", "kind": "society_read"},
+      "cisnet_works": {"name": "CIS-Net, the societies' shared works network, read by the owner's IPI name numbers", "kind": "society_read"},
+      "prs_wacd_agreement_works": {"name": "PRS works database, works on the owner's agreements", "kind": "society_read"},
+      "prs_searchworks_title_searches": {"name": "PRS works search by title", "kind": "society_read"},
+      "prs_works_export": {"name": "The owner's own export of its PRS account", "kind": "owners_own"},
+      "owner_work_list": {"name": "The owner's work list", "kind": "owners_own"},
+      "workspace.catalogue": {"name": "The owner's Workspace catalogue", "kind": "owners_own"},
+      "mlc_bwarm": {"name": "The MLC's public bulk data", "kind": "public_bulk_data"},
+      "usco": {"name": "US Copyright Office public records", "kind": "public_bulk_data"},
+      "ppl_repertoire": {"name": "PPL repertoire search", "kind": "society_read"},
+      "soundexchange_isrc": {"name": "SoundExchange ISRC search", "kind": "society_read"},
+      "musicbrainz_dossier": {"name": "MusicBrainz recording data", "kind": "public_data"},
+      "musicbrainz_index": {"name": "MusicBrainz recording data", "kind": "public_data"},
+      "musicmovearr_deezer": {"name": "Deezer catalogue data (TrackForge's copy of February 2026)", "kind": "public_data"},
+      "musicmovearr_tidal": {"name": "Tidal catalogue data (TrackForge's copy of February 2026)", "kind": "public_data"},
+      "beatport_copy": {"name": "Beatport catalogue data (TrackForge's copy to September 2023)", "kind": "public_data"},
+      "cwr_acks": {"name": "Society acknowledgements of the CWR files TrackForge sent", "kind": "trackforge_records"},
+      "ice_work_key_map": {"name": "ICE work keys from society acknowledgements", "kind": "trackforge_records"},
+      "hetzner.entities.recordings": {"name": "TrackForge's recording register for the catalogue", "kind": "trackforge_records"},
+      "hetzner.links.isrc_equivalence": {"name": "TrackForge's table of equivalent recordings", "kind": "trackforge_records"},
+      "hetzner.links.isrc_iswc": {"name": "TrackForge's recording-to-work (ISWC) links", "kind": "trackforge_records"},
+      "hetzner.links.isrc_prs_tunecode": {"name": "TrackForge's recording-to-PRS-work links", "kind": "trackforge_records"},
+      "hetzner.links.isrc_prs_tunecode_quality_latest": {"name": "Quality of those PRS links, latest reading", "kind": "trackforge_records"},
+      "hetzner.links.prs_iswc": {"name": "TrackForge's PRS-work-to-ISWC links", "kind": "trackforge_records"},
+      "hetzner.recovery.cwr_ack_track_summary": {"name": "Society acknowledgements of TrackForge's CWR files", "kind": "trackforge_records"},
+      "spotify_lifetime_plays": {"name": "Spotify lifetime plays per recording, from a dated snapshot (the demand measure)", "kind": "public_data"},
+      "hetzner.youtube.catalog": {"name": "YouTube views per recording (the demand measure where Spotify shows none, converted into Spotify-equivalent plays where both are used)", "kind": "trackforge_records"},
+      "youtube_views_conversion": {"name": "Plays per YouTube view, measured on the catalogue's works with both counts", "kind": "trackforge_records"},
+      "spotify_live_release": {"name": "Spotify catalogue data, read live for the top-up set and dated by the read", "kind": "public_data"},
+      "manual_reading": {"name": "A reading made by a named person of a named page or document, dated by the reading", "kind": "trackforge_records"}
+    }
+  },
+  "rounding": {"scores_decimal_places": 4, "weights_decimal_places": 10},
+  "fixed_point": {
+    "weight_scale": 10000000000,
+    "unit_scale": 10000,
+    "disclosure_decimal_places": 6,
+    "rounding": "half_even_on_the_exact_value",
+    "proof_population_bound": 65536,
+    "proof_population_bound_note": "The population size up to which every intermediate value of the measure stays under the proof model's runtime bound (2^48). It is a proof-domain figure, not a limit on surveys: the Python engine uses unbounded integers and scores a larger population exactly as stated here; only the headroom claim for the reference model lapses above it.",
+    "rule": "Weights are integers at weight_scale, each rounded on its own from the exact rational; every quantity on [0, 1] and every score in points is an integer at unit_scale; decisions are exact cross-multiplications; every division rounds half to even; the composite is computed from the rounded component scores. "
+  },
+  "tuple_fields": [
+    "rating_scale", "letter", "issued", "not_issued_reasons", "composite", "uncapped_letter",
+    "components", "tier", "routes_in_scope", "rights_positions",
+    "as_of_by_source", "owner_supplied", "attestation_hash", "remediated_by", "floors_applied",
+    "weights_source", "channel_mix", "dropped_channels", "unweighted_tail_count",
+    "income_route_coverage", "route_materiality",
+    "us_share", "us_share_source", "income_split_applied",
+    "soundexchange_share", "soundexchange_share_source", "neighbouring_split_applied",
+    "us_performing_share", "us_performing_share_source", "performing_split_applied", "route_gaps",
+    "cluster_count", "work_count", "work_conditions", "works", "opportunities",
+    "amounts", "attributable_share_sources", "estimated_inputs", "methodology_version", "methodology_hash", "scope",
+    "projected_letter", "projected", "outlook", "collection_assessed", "top_up_sources"
+  ],
+  "work_condition_scale": ["sound", "defective", "unverified"],
+  "calibration": {
+    "status": "run_and_adjust",
+    "note": "Thresholds, component weights and defect factors are published rules, not percentiles. Calibration is running three catalogues of different shapes repeatedly and adjusting until the results are right, then freezing. It is no longer gated on five tier 1 surveys. Changes only by methodology version, one bump per slice; the frozen version keeps its number with status published.",
+    "set": [
+      {
+        "version": "v2.1",
+        "decided": "2026-10-30",
+        "changes": [
+          "Route income coverage no longer withholds; floors per route",
+          "Weights scaled by attributable share",
+          "Coverage ladder, single-work rule, identity dual gate over clusters",
+          "Floors on income weight",
+          "Primary routes by rights type, route materiality",
+          "Evidence precedence and age limits, stale as an unverified reason",
+          "PPL and SoundExchange readings: an age limit of 365 days",
+          "a work without an ISRC is placed by artist and title on the owner's list; a list row showing the work as the owner's may place a pair quarantined only as unverifiable; a work with no fresh reading on its own code may be judged on the owner's other registration of it, never against a fresh reading of its own code"
+        ],
+        "starting_values": "The numbers these rules add are starting values, not yet calibrated. The rating scale, component weights and defect factors are unchanged from v2.0."
+      },
+      {
+        "version": "v2.2",
+        "decided": "2026-11-01",
+        "changes": [
+          "digital mechanical split by territory: The MLC takes the mix times the US share and MCPS the rest, so route shares sum to 1, and with only one of the two in scope it takes the whole channel; a declared us_share in the attestation, disclosed in the tuple, with a default of 40%",
+          "registration scored by route share: a defect costs a work that route's share of its income; unread routes sit outside both sums",
+          "per-route income-weight floors compare route share times hit share to the threshold, under the materiality guard; the full route gap stays on the floor entry and in the tuple's route_gaps"
+        ],
+        "starting_values": "The default US share is a starting value, read from the IFPI Global Music Report 2025 and not yet calibrated; a declared share below the default is the owner's provisional declaration."
+      },
+      {
+        "version": "v2.3",
+        "decided": "2026-11-01",
+        "changes": [
+          "neighbouring split by route: SoundExchange takes the mix times the SoundExchange share and PPL the rest, so route shares sum to 1, and with only one of the two in scope it takes the whole channel; a declared soundexchange_share in the attestation, disclosed in the tuple, with a default of 40%",
+          "a recording survey with no declared mix defaults to neighbouring, so its route shares apply either way",
+          "registration.nr_recording_absent_from_ppl_or_sx joins the two unregistered floors, so a floor can fire on a recording catalogue",
+          "a person's decision in the attestation places a work no other reading places, for the survey only"
+        ],
+        "starting_values": "The default SoundExchange share is a starting value, a little above the 26% to 37% estimated from published figures and not yet calibrated."
+      },
+      {
+        "version": "v2.4",
+        "decided": "2026-11-02",
+        "changes": [
+          "risk: a work a route read with no risk raised is sound; a work no route read is unverified, not_supplied; before this version no work could be sound, so the component scored defective works alone",
+          "every unverified state carries its reason, the registration roll-up included",
+          "estimated inputs: value, basis and range replace provisional declarations; the letter is the lowest across the range",
+          "money: measured amounts only, each with its source; no amounts is stated, never zero; the registration leaks carry amounts",
+          "live table reads carry a hash of the rows read and are labelled dated reads",
+          "every work states its attributable share source and the tuple counts them",
+          "the rule book carries the wording of each letter and the plain names of components, routes, states, reasons and sources",
+          "the plain names add who each unverified reason sits with (the client, the society or TrackForge), the channels, the floors and the report's terms, matching the public method statement and glossary (3 November 2026)",
+          "classes no reader raises are marked not_yet_read",
+          "an issued run has no lookup budget: issue is refused while any work, whatever its weight, is unverified for lookup_budget_exhausted (coverage.issue_refused_reasons); draft and rehearsal runs may still cap",
+          "in flight: an overlay on defect rows with two classes, limits per route and transaction type, a projected letter and an outlook with its guardrails; a run that carries no in-flight rows rates exactly as before",
+          "the tuple field list names the fields the tuple carries (4 November 2026)"
+        ],
+        "starting_values": "No score, weight, factor or threshold changes. range ends are the owner's judgement."
+      },
+    {
+      "version": "v2.5",
+      "decided": "2026-11-05",
+      "changes": [
+        "identity reads TrackForge's copies of the Deezer, Tidal and Beatport catalogues, never its Spotify copy: one ISRC on tracks that differ in artist or in length by more than 3 seconds is identity.isrc_collision; two songs' titles on one artist and one length is identity.cross_source_metadata_inconsistency; a copy's one song that disagrees with the owner's title is the same inconsistency",
+        "a sound-recording survey takes its identity reading from those copies: held under one song is sound, a disagreement is defective, held by no copy is unverified, too_recent after the newest copy's edition and source_unavailable otherwise",
+        "plain names for the three copies (musicmovearr_deezer, musicmovearr_tidal, beatport_copy)",
+        "a sound-recording survey takes its title reading from the \u2117 credit on the release (the track credit, else the album credit, in TrackForge's copy of the release; evidence kind release_credit): a credit naming an owner party anywhere is sound; one naming other words than the owner and the artist is title.release_credits_another_party (risk, 0.5); one naming only the artist corroborates nothing (unverified, not_supplied) unless the owner is the artist; no credit is unverified, too_recent after the copy's edition and source_unavailable otherwise; label is not publisher, so composition surveys never read it"
+      ],
+      "starting_values": "No score, weight, factor or threshold changes."
+    },
+    {
+      "version": "v2.6",
+      "decided": "2026-11-06",
+      "changes": [
+        "the rule book is written to be published in full: every rule is stated as a rule, with no attribution and no reference to how TrackForge obtains a reading; the identity resolution methods and the cluster key's construction are described in words, not named",
+        "every defect class names in read_by the kinds of evidence a reading can raise it from, or none where it is not yet read; the published implementation matrix is generated from it",
+        "register_copy joins the evidence sources: TrackForge's dated copies of the US Copyright Office's records and of the Deezer, Tidal, Beatport and MusicBrainz catalogues, which the identity and title readings already used, so every reading names its kind; the attestation is named as the source of the one defect read from it alone",
+        "collection not assessed caps the letter: when no collection evidence is supplied the letter is capped at collection_not_assessed_cap (A), reported with the floors as collection_not_assessed, and the rating is labelled a registration rating with collection not assessed; the tuple carries collection_assessed. A limit of scope, not a defect: the cap is a letter, no number changes",
+        "the release's \u2117 credit is a question, not a finding: a credit naming a party that is neither the owner nor the artist is unverified, not_supplied (an agreement or licence is needed) unless PPL or SoundExchange names the same party as the recording's registered holder, when it is title.release_credits_another_party as before; a distributor's default credit names nobody; the class is read by release_credit and portal together",
+        "a seventh unverified reason, copy_predates_release, sits with TrackForge: a release newer than TrackForge's dated copy of a catalogue is unread because the copy predates it, not because the society's record has not caught up; too_recent stays for the societies' own records. Issue is refused while a material work (at or above single_work_share of weight, or in the top material_top_works by weight) is unverified for it (coverage.issue_refused_material_reasons); below that it is ordinary coverage shortfall",
+        "the top-up lane (coverage.top_up): the material works that would refuse issue for copy_predates_release are read in weight order until none remains, first live from a public catalogue read on the day (live_release_read, the Spotify catalogue, read for the top-up set only and dated by the read), then by a person (manual_reading); each reading is a dated source pinned by the hash of what was read and carried in the frozen proof pack, sets identity and title only, and the tuple carries the count of works read by each top-up source (top_up_sources)",
+        "a manual reading joins the evidence sources: a reading made by a named person of a named page or document on a named date, accepted on the same terms whoever made it and named on the rating with who read it and when; it ranks with the release credit for title and after the dated copies for identity",
+        "the share classes are read: for a work bound to one of the owner's agreements, the society's share of each right the agreement covers is compared with the share the agreement documents, scaled by the owner's declared attributable share (components.title.share_rule); lower by more than share_tolerance_points of a hundred is title.society_share_lower_than_documented with the gap as its factor, higher is title.society_share_higher_than_documented; a bound work whose society record is past its age limit is unverified for title, stale. One reader-level number (the tolerance) is added; no weight, factor or threshold moves",
+        "ASCAP and BMI join the routes in scope as owner-export routes for direct members (requires: owner_export): in scope only when the owner is a direct member and supplies its own export of its account, which is the route's one reading; one of the two in a survey; performance income then divides by territory between the US route and PRS for Music (routes.income_split, us_performing_share, default 40% on the digital mechanical split's basis). Neither is a primary route: a composition survey must still carry The MLC, and carries a US performing route only on the owner's export. No number that scores a work changes"
+      ],
+      "starting_values": "No score, weight, factor or threshold changes; one cap letter added; one tolerance added."
+    },
+    {
+      "version": "v2.7",
+      "decided": "2026-11-11",
+      "changes": [
+        "CIS-Net is read for identity: a work is placed on the societies' records that carry one of the owner's parties by IPI name number, by its ISWC and otherwise by its title (components.identity.resolution_rule). The placing sets no society work number and reaches no route's registration state, as before",
+        "a fresh CIS-Net placing is a registry record of the work, so a work no higher-ranked reading has read is sound on it; this is the identity reading for an owner outside PRS. Where a higher-ranked reading has read the work, that reading decides as before",
+        "three identity classes are read from CIS-Net as well (read_by): conflicting ISWCs, on every work for a placing found by the work's own ISWC and within the placing for one found by title; duplicate work registrations (two work numbers at one society in one repertoire) and a writer without an IPI on a work the owner publishes, on a work no higher-ranked reading has read",
+        "a CIS-Net reading keeps its age limit of 90 days (evidence.ageless_exceptions): identity readings otherwise do not age, which in v2.6 left the CIS-Net limit unapplied. A CIS-Net reading past its limit decides nothing and changes no state or reason"
+      ],
+      "starting_values": "No score, weight, factor or threshold changes. The 90-day CIS-Net limit is the starting limit v2.6 already stated."
+    }
+    ]
+  },
+  "independence": {
+    "disclosure_field": "remediated_by",
+    "values": ["none", "trackforge", "ortpur", "owner", "third_party"],
+    "rule": "Always disclosed in the event; before/after events link only under the same methodology; cross-version comparisons carry a bridge note."
+  }
+}
