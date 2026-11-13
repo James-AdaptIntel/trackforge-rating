@@ -206,7 +206,7 @@ A **leak** loses money now; a **risk** could lose money later; an **opportunity*
 
 ## In flight, the projected letter and the outlook
 
-Work sent to a society and acknowledged but not yet published never changes the letter. The Rating Report shows it beside the letter, not in it: a **projected letter** with acknowledged, uncontested items treated as landed, and an **outlook**. Rule book v2.6 keeps their rules unchanged from v2.4; see [in flight](https://trackforge.studio/docs/certification/rating/in-flight).
+Work sent to a society and acknowledged but not yet published never changes the letter. The Rating Report shows it beside the letter, not in it: a **projected letter** with acknowledged, uncontested items treated as landed, and an **outlook**. Their rules are unchanged since rule book v2.4; see [in flight](https://trackforge.studio/docs/certification/rating/in-flight).
 
 ## The scale
 

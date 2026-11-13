@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:trackforge:rating:status-attestation:1",
+  "title": "TrackForge status attestation, format 1",
+  "description": "A signed answer from the live check, bound to the caller's nonce. The signature is over the canonical JSON bytes of `attestation`. See status.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["attestation", "signature"],
+  "properties": {
+    "attestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "statement_sha256", "status", "replaced_by", "checked_at", "nonce", "status_key"],
+      "properties": {
+        "format": {"const": "trackforge-status-attestation/1"},
+        "statement_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "status": {"enum": ["current", "replaced", "past_review_date", "withdrawn"]},
+        "replaced_by": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["issue_number", "issue_date"],
+              "properties": {
+                "issue_number": {"type": "integer", "minimum": 1},
+                "issue_date": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}
+              }
+            }
+          ]
+        },
+        "checked_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+        "nonce": {"type": "string", "pattern": "^[A-Za-z0-9_-]{16,128}$"},
+        "status_key": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "signature": {
+      "description": "Ed25519 signature, 64 bytes, standard padded base64 (88 characters).",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9+/]{86}==$"
+    }
+  }
+}

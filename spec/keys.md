@@ -56,6 +56,10 @@ Rating Report. Each later key is trusted through the rotation record signed by i
 predecessor. Rotation records are timestamped with OpenTimestamps like the log heads
 (`<file>.ots` beside each).
 
+A separate, online **status key** signs the live check's status answers. It is endorsed
+by a key published here but is never itself a signing key in this directory: see
+[status.md](status.md).
+
 ## Creating the key (step 4, James)
 
 The key pair is created by James on his own machine. Only the public half and its

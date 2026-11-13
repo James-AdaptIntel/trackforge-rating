@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:trackforge:rating:status-key:1",
+  "title": "TrackForge status key, format 1",
+  "description": "status-keys/<fingerprint>.json: one published Ed25519 public key that signs status attestations only, endorsed by a rating signing key. See status.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "algorithm", "public_key", "fingerprint", "holder", "valid_from", "endorsed_by", "endorsement"],
+  "properties": {
+    "format": {"const": "trackforge-status-key/1"},
+    "algorithm": {"const": "ed25519"},
+    "public_key": {"type": "string", "pattern": "^[A-Za-z0-9+/]{43}=$"},
+    "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "holder": {"type": "string", "minLength": 1, "pattern": "^[\\x20-\\x7e]+$"},
+    "valid_from": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+    "endorsed_by": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "endorsement": {"type": "string", "pattern": "^[A-Za-z0-9+/]{86}==$"}
+  }
+}

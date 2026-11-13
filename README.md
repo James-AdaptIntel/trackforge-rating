@@ -38,7 +38,8 @@ check a rating document is genuine, unaltered and still current.
 | [`rule-book/`](rule-book/) | the rule book in force (v2.8), byte for byte, with v2.7 and v2.6 beside it |
 | [`keys/`](keys/) | TrackForge's Ed25519 public signing key(s) and any rotation records |
 | [`log/`](log/) | the hash-only log of issues, replacements and withdrawals, and its timestamped heads |
-| [`spec/`](spec/) | the formats: [statement](spec/statement.md), [log](spec/log.md), [keys](spec/keys.md), with JSON Schemas |
+| [`spec/`](spec/) | the formats: [statement](spec/statement.md), [log](spec/log.md), [keys](spec/keys.md), [signed status answers](spec/status.md), with JSON Schemas |
+| [`status-keys/`](status-keys/) | public keys that sign the live check's status answers |
 | [`checker/`](checker/) | a small checker for signature, log and timestamp lookups |
 
 ## Method statement
@@ -88,6 +89,20 @@ but something could not be checked; 4 genuine but replaced or withdrawn.
 The checker tells you a document is TrackForge's, unaltered, and when it existed. It
 cannot tell you the society records it describes are right; the Rating Report lists the
 largest works and where to look each one up.
+
+## Signed status answers
+
+The live check can also give a signed answer to "is this rating current?", tied to a
+nonce you choose, so you can show afterwards what TrackForge said and when. It is
+signed by the status key published in [`status-keys/`](status-keys/). The format
+and how to check a saved answer are in [`spec/status.md`](spec/status.md):
+
+```
+python checker/check_rating.py status attestation.json --keys keys --nonce <your nonce>
+```
+
+Exit status: 0 every check passed; 1 a check failed; 3 nothing failed but something
+could not be checked; 4 genuine but replaced or withdrawn.
 
 To check the log on its own:
 

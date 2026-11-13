@@ -16,10 +16,16 @@ Usage::
 
     python check_rating.py statement SIGNED.json --keys keys/ --log log/entries.jsonl
     python check_rating.py log log/entries.jsonl --head log/heads/000003.json
+    python check_rating.py status ATTESTATION.json --keys keys/ --nonce YOUR_NONCE \
+        [--max-age SECONDS] [--statement SIGNED.json] [--status-keys status-keys/]
 
 Exit codes: 0 genuine, current and fully checked; 1 a check failed;
 3 nothing failed but something could not be checked (no log given, ``ots``
-not installed, timestamp still pending); 4 genuine but replaced or withdrawn.
+not installed, timestamp still pending, no nonce given to ``status``);
+4 genuine but replaced or withdrawn.
+
+``status`` checks a saved signed answer from the live check (the
+``attestation`` member of its response): see ``../spec/status.md``.
 
 The formats are specified in ``../spec/``. Requires Python 3.11+ and the
 ``cryptography`` package pinned in ``requirements.txt``.
@@ -50,6 +56,10 @@ LOG_FORMAT = "trackforge-rating-log/1"
 HEAD_FORMAT = "trackforge-rating-log-head/1"
 KEY_FORMAT = "trackforge-signing-key/1"
 ROTATION_FORMAT = "trackforge-key-rotation/1"
+ATTESTATION_FORMAT = "trackforge-status-attestation/1"
+STATUS_KEY_FORMAT = "trackforge-status-key/1"
+RETIREMENT_FORMAT = "trackforge-status-key-retirement/1"
+ATTESTATION_STATUSES = ("current", "replaced", "past_review_date", "withdrawn")
 
 LETTERS = ("AAA", "AA", "A", "BBB", "BB", "B", "CCC", "CC", "C", "D")
 LOG_KINDS = ("issue", "replace", "withdraw")
@@ -61,6 +71,8 @@ CATALOGUE_REF = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 RULE_BOOK_VERSION = re.compile(r"^v[0-9]+\.[0-9]+$")
 DATE = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
 PRINTABLE_ASCII = re.compile(r"^[\x20-\x7e]*$")
+NONCE = re.compile(r"^[A-Za-z0-9_-]{16,128}$")
+CHECKED_AT = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")
 
 # OpenTimestamps detached proof: magic, major version 1, then the file-hash
 # operation tag (0x08 = SHA-256) and the 32-byte digest of the stamped file.
@@ -638,6 +650,239 @@ def cmd_log(args: argparse.Namespace) -> int:
     return report.exit_code()
 
 
+# ---------------------------------------------------------------------------
+# Status attestations (spec/status.md)
+# ---------------------------------------------------------------------------
+
+ATTESTATION_KEYS = {
+    "format",
+    "statement_sha256",
+    "status",
+    "replaced_by",
+    "checked_at",
+    "nonce",
+    "status_key",
+}
+
+
+@dataclass
+class StatusKey:
+    fingerprint: str
+    public_key: Ed25519PublicKey
+    valid_from: dt.date
+    endorsed_by: str
+
+
+def validate_attestation(doc: Any) -> tuple[dict[str, Any], bytes]:
+    if not isinstance(doc, dict):
+        raise FormatError("attestation: not a JSON object")
+    _exact_keys(doc, {"attestation", "signature"}, "attestation envelope")
+    body = doc["attestation"]
+    if not isinstance(body, dict):
+        raise FormatError("attestation: not a JSON object")
+    _exact_keys(body, ATTESTATION_KEYS, "attestation")
+    _ascii_strings(body, "attestation")
+    if body["format"] != ATTESTATION_FORMAT:
+        raise FormatError(f"attestation: format must be {ATTESTATION_FORMAT!r}")
+    _hex64(body["statement_sha256"], "statement_sha256")
+    _hex64(body["status_key"], "status_key")
+    if body["status"] not in ATTESTATION_STATUSES:
+        raise FormatError(f"status must be one of {', '.join(ATTESTATION_STATUSES)}")
+    replaced = body["replaced_by"]
+    if replaced is not None:
+        if not isinstance(replaced, dict):
+            raise FormatError("replaced_by must be null or an object")
+        _exact_keys(replaced, {"issue_number", "issue_date"}, "replaced_by")
+        _positive_int(replaced["issue_number"], "replaced_by.issue_number")
+        _date(replaced["issue_date"], "replaced_by.issue_date")
+    if not isinstance(body["checked_at"], str) or not CHECKED_AT.fullmatch(body["checked_at"]):
+        raise FormatError("checked_at must be YYYY-MM-DDTHH:MM:SSZ")
+    _checked_at(body["checked_at"])
+    if not isinstance(body["nonce"], str) or not NONCE.fullmatch(body["nonce"]):
+        raise FormatError("nonce must be 16 to 128 characters of A-Z a-z 0-9 _ -")
+    return body, _b64(doc["signature"], "signature", 64)
+
+
+def _checked_at(text: str) -> dt.datetime:
+    try:
+        return dt.datetime.strptime(text, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=dt.UTC)
+    except ValueError as exc:
+        raise FormatError("checked_at is not a real UTC time") from exc
+
+
+def _endorsing_key(keyring: dict[str, SigningKey], record: dict[str, Any], what: str) -> SigningKey:
+    """The published rating key that endorsed ``record``, after its signature check."""
+    _hex64(record["endorsed_by"], "endorsed_by")
+    key = keyring.get(record["endorsed_by"])
+    if key is None:
+        raise FormatError(f"{what}: endorsed by a key that is not published in keys/")
+    body = canonical_bytes({k: v for k, v in record.items() if k != "endorsement"})
+    if not _verify(key, _b64(record["endorsement"], "endorsement", 64), body):
+        raise FormatError(f"{what}: the endorsement does not verify")
+    return key
+
+
+def load_status_key(
+    data: bytes, filename: str, keyring: dict[str, SigningKey]
+) -> tuple[StatusKey, SigningKey]:
+    doc = load_canonical(data, filename)
+    _exact_keys(
+        doc,
+        {
+            "format",
+            "algorithm",
+            "public_key",
+            "fingerprint",
+            "holder",
+            "valid_from",
+            "endorsed_by",
+            "endorsement",
+        },
+        filename,
+    )
+    _ascii_strings(doc, filename)
+    if doc["format"] != STATUS_KEY_FORMAT or doc["algorithm"] != "ed25519":
+        raise FormatError(f"{filename}: not a {STATUS_KEY_FORMAT} ed25519 key")
+    raw = _b64(doc["public_key"], "public_key", 32)
+    if key_fingerprint(raw) != doc["fingerprint"]:
+        raise FormatError(f"{filename}: fingerprint does not match the public key")
+    if filename != f"{doc['fingerprint']}.json":
+        raise FormatError(f"{filename}: status key files are named <fingerprint>.json")
+    if not isinstance(doc["holder"], str) or not doc["holder"]:
+        raise FormatError(f"{filename}: holder must be named")
+    valid_from = _date(doc["valid_from"], "valid_from")
+    endorser = _endorsing_key(keyring, doc, filename)
+    if valid_from < endorser.valid_from or (
+        endorser.valid_until and valid_from >= endorser.valid_until
+    ):
+        raise FormatError(f"{filename}: endorsed by a key that was not in service on valid_from")
+    return (
+        StatusKey(
+            doc["fingerprint"],
+            Ed25519PublicKey.from_public_bytes(raw),
+            valid_from,
+            doc["endorsed_by"],
+        ),
+        endorser,
+    )
+
+
+def retirement_date(
+    status_keys_dir: Path, fingerprint: str, keyring: dict[str, SigningKey]
+) -> dt.date | None:
+    """The day the status key was retired, or None when no retirement is published."""
+    path = status_keys_dir / "retired" / f"{fingerprint}.json"
+    if not path.exists():
+        return None
+    doc = load_canonical(path.read_bytes(), path.name)
+    _exact_keys(
+        doc, {"format", "fingerprint", "date", "reason", "endorsed_by", "endorsement"}, path.name
+    )
+    if doc["format"] != RETIREMENT_FORMAT or doc["fingerprint"] != fingerprint:
+        raise FormatError(f"{path.name}: not a retirement record for this key")
+    if doc["reason"] not in ROTATION_REASONS:
+        raise FormatError(f"{path.name}: reason must be scheduled or compromise")
+    when = _date(doc["date"], "date")
+    _endorsing_key(keyring, doc, path.name)
+    return when
+
+
+def _check_status_signature(
+    report: Report, body: dict[str, Any], signature: bytes, args: argparse.Namespace
+) -> None:
+    """Steps 1 to 3: the key, its endorsement and retirement, the signature."""
+    try:
+        keyring = load_keyring(Path(args.keys))
+    except FormatError as exc:
+        report.line("FAIL", f"keys: {exc}")
+        return
+    status_dir = (
+        Path(args.status_keys) if args.status_keys else Path(args.keys).parent / "status-keys"
+    )
+    key_path = status_dir / f"{body['status_key']}.json"
+    if not key_path.exists():
+        report.line("FAIL", f"status key {body['status_key']} is not published in {status_dir}")
+        return
+    try:
+        key, endorser = load_status_key(key_path.read_bytes(), key_path.name, keyring)
+        retired = retirement_date(status_dir, key.fingerprint, keyring)
+    except FormatError as exc:
+        report.line("FAIL", f"status key: {exc}")
+        return
+    checked = _checked_at(body["checked_at"])
+    report.line(
+        "PASS", f"status key {key.fingerprint} endorsed by rating key {endorser.fingerprint}"
+    )
+    if endorser.revoked_from and checked.date() >= endorser.revoked_from:
+        report.line(
+            "FAIL", f"status key: endorsing rating key revoked from {endorser.revoked_from}"
+        )
+    if checked.date() < key.valid_from:
+        report.line("FAIL", "status key: not yet valid when the answer was given")
+    if retired is not None and checked.date() >= retired:
+        report.line("FAIL", f"status key: retired from {retired}")
+    try:
+        key.public_key.verify(signature, canonical_bytes(body))
+    except InvalidSignature:
+        report.line("FAIL", "signature: does not verify against the status key")
+    else:
+        report.line("PASS", "signature: valid")
+
+
+def _check_status_claims(report: Report, body: dict[str, Any], args: argparse.Namespace) -> None:
+    """Steps 4 to 6: nonce, age, and the statement the answer is about."""
+    if args.nonce is None:
+        report.line("NOT CHECKED", "nonce: none given (--nonce); anyone could have replayed this")
+    elif body["nonce"] != args.nonce:
+        report.line("FAIL", "nonce: is not the one you sent")
+    else:
+        report.line("PASS", "nonce: matches")
+    checked = _checked_at(body["checked_at"])
+    now = _checked_at(args.now) if args.now else dt.datetime.now(dt.UTC)
+    age = int((now - checked).total_seconds())
+    if args.max_age is not None and age > args.max_age:
+        report.line("FAIL", f"age: {age} seconds, more than the {args.max_age} allowed")
+    elif args.max_age is not None and age < -60:
+        report.line("FAIL", "age: checked_at is in the future")
+    else:
+        report.line("PASS" if args.max_age is not None else "NOTE", f"age: {age} seconds")
+    if args.statement:
+        try:
+            signed = load_canonical(Path(args.statement).read_bytes(), Path(args.statement).name)
+            statement, _ = validate_signed(signed)
+        except FormatError as exc:
+            report.line("FAIL", f"statement: {exc}")
+            return
+        if statement_sha256(statement) != body["statement_sha256"]:
+            report.line("FAIL", "statement: the answer is about a different statement")
+        else:
+            report.line("PASS", "statement: the answer is about this statement")
+
+
+def cmd_status(args: argparse.Namespace) -> int:
+    report = Report()
+    path = Path(args.attestation)
+    try:
+        doc = json.loads(path.read_bytes().decode("utf-8"))
+        body, signature = validate_attestation(doc)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        report.line("FAIL", f"{path.name}: not valid JSON ({exc})")
+        return report.exit_code()
+    except FormatError as exc:
+        report.line("FAIL", str(exc))
+        return report.exit_code()
+    print(f"statement    {body['statement_sha256']}")
+    print(f"answer       {body['status']} at {body['checked_at']}")
+    _check_status_signature(report, body, signature, args)
+    _check_status_claims(report, body, args)
+    if not report.failed and body["status"] in ("replaced", "withdrawn"):
+        report.line("STATUS", body["status"])
+        report.not_current = True
+    elif body["status"] == "past_review_date":
+        report.line("NOTE", "past its review date: older, not replaced or withdrawn")
+    return report.exit_code()
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = parser.add_subparsers(dest="command", required=True)
@@ -652,6 +897,17 @@ def main(argv: list[str] | None = None) -> int:
     lg.add_argument("log", help="log/entries.jsonl")
     lg.add_argument("--head", action="append", help="a log/heads/<seq>.json file (repeatable)")
     lg.set_defaults(func=cmd_log)
+    sa = sub.add_parser("status", help="check a saved signed answer from the live check")
+    sa.add_argument("attestation", help="the attestation file (the response's attestation member)")
+    sa.add_argument("--keys", required=True, help="the published keys/ directory")
+    sa.add_argument(
+        "--status-keys", help="the published status-keys/ directory (default: beside keys/)"
+    )
+    sa.add_argument("--nonce", help="the nonce you sent with the check")
+    sa.add_argument("--max-age", type=int, help="refuse an answer older than this many seconds")
+    sa.add_argument("--statement", help="the signed statement the answer should be about")
+    sa.add_argument("--now", help="time to judge age against (YYYY-MM-DDTHH:MM:SSZ)")
+    sa.set_defaults(func=cmd_status)
     args = parser.parse_args(argv)
     return args.func(args)
 
