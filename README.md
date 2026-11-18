@@ -6,7 +6,7 @@
 
 <p align="center">
   <em>The registration-truth layer for music rights.</em><br>
-  We find out what's actually registered, fix what's broken, and prove it's paying.
+  Get your catalogue right, find out what's actually registered, and prove it.
 </p>
 
 <p align="center">
